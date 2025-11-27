@@ -349,11 +349,11 @@ shadow-lg">
       {/* Certificate Modal */}
       {selectedCertificate && (
         <div
-          className="fixed inset-0 bg-black/70 z-40 flex items-center justify-center p-4 backdrop-blur-sm"
+          className="fixed inset-0 bg-black/70 z-40 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto"
           onClick={() => setSelectedCertificate(null)}
         >
           <div
-            className="relative max-w-4xl max-h-[90vh] flex flex-col"
+            className="relative my-8 max-w-4xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <button
