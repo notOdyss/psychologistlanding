@@ -1,56 +1,15 @@
-import React from 'react';
-import html2canvas from 'html2canvas';
+import { useState } from 'react';
 
 function App() {
-  const handleScreenshot = async () => {
-    const element = document.body;
-    const button = document.getElementById('screenshot-btn');
+  const [selectedCertificate, setSelectedCertificate] = useState(null);
 
-    // Hide button before screenshot
-    button.style.display = 'none';
-
-    try {
-      const canvas = await html2canvas(element, {
-        scale: 2, // High quality
-        useCORS: true,
-        logging: false,
-        width: 1700, // Mobile-friendly width for customers
-        windowWidth: 1700,
-        backgroundColor: '#fafafa'
-      });
-
-      // Convert to PNG and download
-      canvas.toBlob((blob) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = 'zarina-yelbaeva-landing.png';
-        link.href = url;
-        link.click();
-        URL.revokeObjectURL(url);
-
-        // Show button again
-        button.style.display = 'flex';
-      });
-    } catch (error) {
-      console.error('Screenshot error:', error);
-      button.style.display = 'flex';
-    }
-  };
+  const certificates = [
+    { id: 1, src: '/880914402487-20251127100548165.pdf', title: 'Сертификат 1' },
+    { id: 2, src: '/images/880914402487-20251127100528417.pdf', title: 'Сертификат 2' },
+  ];
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-
-      {/* Screenshot Button */}
-      <button
-        id="screenshot-btn"
-        onClick={handleScreenshot}
-        className="fixed bottom-6 right-6 z-50 bg-[#0F766E] hover:bg-[#115E59] text-white font-bold px-6 py-3 rounded-full shadow-2xl transition-all hover:scale-105 flex items-center gap-2"
-      >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-        </svg>
-        PNG жүктеу
-      </button>
 
       {/* Hero Section */}
       <section className="pt-8 pb-2 px-6">
@@ -357,27 +316,22 @@ shadow-lg">
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow">
-              <iframe
-                src="/880914402487-20251127100548165.pdf"
-                className="w-full h-80"
-                title="Certificate 1"
-              ></iframe>
-              <div className="p-4 text-center">
-                <p className="text-gray-700 font-semibold">Сертификат 1</p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow">
-              <iframe
-                src="/images/880914402487-20251127100528417.pdf"
-                className="w-full h-80"
-                title="Certificate 2"
-              ></iframe>
-              <div className="p-4 text-center">
-                <p className="text-gray-700 font-semibold">Сертификат 2</p>
-              </div>
-            </div>
+            {certificates.map((cert) => (
+              <button
+                key={cert.id}
+                onClick={() => setSelectedCertificate(cert)}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl hover:border-[#0F766E] transition-all cursor-pointer group"
+              >
+                <iframe
+                  src={cert.src}
+                  className="w-full h-80 group-hover:opacity-90 transition-opacity"
+                  title={cert.title}
+                ></iframe>
+                <div className="p-4 text-center">
+                  <p className="text-gray-700 font-semibold">{cert.title}</p>
+                </div>
+              </button>
+            ))}
 
             <div className="bg-[#CCFBF1] rounded-2xl shadow-lg border-2 border-[#0F766E] flex items-center justify-center p-6 text-center hover:shadow-xl transition-shadow">
               <div>
@@ -389,6 +343,36 @@ shadow-lg">
           </div>
         </div>
       </section>
+
+      {/* Certificate Modal */}
+      {selectedCertificate && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4"
+          onClick={() => setSelectedCertificate(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h3 className="text-2xl font-bold text-gray-900">{selectedCertificate.title}</h3>
+              <button
+                onClick={() => setSelectedCertificate(null)}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <iframe
+              src={selectedCertificate.src}
+              className="flex-1 w-full rounded-b-2xl"
+              title={selectedCertificate.title}
+            ></iframe>
+          </div>
+        </div>
+      )}
 
     </div>
   );
