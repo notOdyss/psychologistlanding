@@ -321,9 +321,6 @@ shadow-lg">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               Сертификаттар
             </h2>
-            <p className="text-xl text-gray-600">
-              Мұғалімнің біліктілігі мен тәжірибесінің куәлігі
-            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
