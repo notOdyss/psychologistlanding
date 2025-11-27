@@ -344,6 +344,52 @@ shadow-lg">
         </div>
       </section>
 
+      {/* Certificates Section */}
+      <section className="py-12 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Сертификаттар
+            </h2>
+            <p className="text-xl text-gray-600">
+              Мұғалімнің біліктілігі мен тәжірибесінің куәлігі
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow">
+              <iframe
+                src="/880914402487-20251127100548165.pdf"
+                className="w-full h-80"
+                title="Certificate 1"
+              ></iframe>
+              <div className="p-4 text-center">
+                <p className="text-gray-700 font-semibold">Сертификат 1</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow">
+              <iframe
+                src="/images/880914402487-20251127100528417.pdf"
+                className="w-full h-80"
+                title="Certificate 2"
+              ></iframe>
+              <div className="p-4 text-center">
+                <p className="text-gray-700 font-semibold">Сертификат 2</p>
+              </div>
+            </div>
+
+            <div className="bg-[#CCFBF1] rounded-2xl shadow-lg border-2 border-[#0F766E] flex items-center justify-center p-6 text-center hover:shadow-xl transition-shadow">
+              <div>
+                <p className="text-3xl mb-3">📜</p>
+                <p className="text-lg font-bold text-gray-900">Көбінесе сертификаттар</p>
+                <p className="text-gray-700 text-sm mt-2">Батасы өндіктілігінің куәлігі</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }
