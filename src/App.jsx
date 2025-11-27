@@ -2,7 +2,13 @@ import { useState } from 'react';
 
 function App() {
   const [selectedCertificate, setSelectedCertificate] = useState(null);
+  const [selectedDiploma, setSelectedDiploma] = useState(null);
   const [zoom, setZoom] = useState(1);
+
+  const diplomas = [
+    { id: 1, src: '/cert1-1.png', title: 'Диплом 1' },
+    { id: 2, src: '/cert2-1.png', title: 'Диплом 2' },
+  ];
 
   const certificates = [
     { id: 1, src: '/cert1-1.png', title: 'Сертификат 1' },
@@ -314,6 +320,46 @@ shadow-lg">
         </div>
       </section>
 
+      {/* Diplomas Section */}
+      <section className="py-12 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Дипломдар
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {diplomas.map((diploma) => (
+              <button
+                key={diploma.id}
+                onClick={() => setSelectedDiploma(diploma)}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl hover:border-[#0F766E] transition-all cursor-pointer group"
+              >
+                <div className="h-80 overflow-hidden">
+                  <img
+                    src={diploma.src}
+                    alt={diploma.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  />
+                </div>
+                <div className="p-4 text-center">
+                  <p className="text-gray-700 font-semibold">{diploma.title}</p>
+                </div>
+              </button>
+            ))}
+
+            <div className="bg-[#CCFBF1] rounded-2xl shadow-lg border-2 border-[#0F766E] flex items-center justify-center p-6 text-center hover:shadow-xl transition-shadow">
+              <div>
+                <p className="text-3xl mb-3">📜</p>
+                <p className="text-lg font-bold text-gray-900">Көбінесе сертификаттар</p>
+                <p className="text-gray-700 text-sm mt-2">Батасы өндіктілігінің куәлігі</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Certificates Section */}
       <section className="py-12 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
@@ -346,13 +392,67 @@ shadow-lg">
             <div className="bg-[#CCFBF1] rounded-2xl shadow-lg border-2 border-[#0F766E] flex items-center justify-center p-6 text-center hover:shadow-xl transition-shadow">
               <div>
                 <p className="text-3xl mb-3">📜</p>
-                <p className="text-lg font-bold text-gray-900">Көбінесе сертификаттар</p>
-                <p className="text-gray-700 text-sm mt-2">Батасы өндіктілігінің куәлігі</p>
+                <p className="text-lg font-bold text-gray-900">Тағы сертификаттар</p>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Diploma Modal */}
+      {selectedDiploma && (
+        <div
+          className="fixed inset-0 bg-black/70 z-40 flex flex-col items-center justify-center p-3 sm:p-4 backdrop-blur-sm overflow-y-auto"
+          onClick={() => {
+            setSelectedDiploma(null);
+            setZoom(1);
+          }}
+          onWheel={handleWheel}
+        >
+          <div
+            className="relative my-4 w-full max-w-2xl sm:max-w-3xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-3 gap-2">
+              <p className="text-white text-sm font-medium">
+                {zoom > 1 ? `${Math.round(zoom * 100)}%` : 'Scroll to zoom'}
+              </p>
+              <div className="flex gap-2">
+                {zoom > 1 && (
+                  <button
+                    onClick={() => resetZoom()}
+                    className="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded text-sm transition-colors"
+                  >
+                    Reset
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setSelectedDiploma(null);
+                    setZoom(1);
+                  }}
+                  className="text-white hover:text-gray-300 transition-colors"
+                >
+                  <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center justify-center overflow-auto max-h-[calc(90vh-60px)]">
+              <img
+                src={selectedDiploma.src}
+                alt={selectedDiploma.title}
+                className="rounded-lg sm:rounded-2xl shadow-2xl transition-transform"
+                style={{
+                  transform: `scale(${zoom})`,
+                  transformOrigin: 'center',
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Certificate Modal */}
       {selectedCertificate && (
