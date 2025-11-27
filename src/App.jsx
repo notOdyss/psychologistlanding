@@ -2,11 +2,22 @@ import { useState } from 'react';
 
 function App() {
   const [selectedCertificate, setSelectedCertificate] = useState(null);
+  const [zoom, setZoom] = useState(1);
 
   const certificates = [
     { id: 1, src: '/cert1-1.png', title: 'Сертификат 1' },
     { id: 2, src: '/cert2-1.png', title: 'Сертификат 2' },
   ];
+
+  const handleWheel = (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      setZoom((prev) => Math.max(1, Math.min(5, prev * delta)));
+    }
+  };
+
+  const resetZoom = () => setZoom(1);
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -349,26 +360,54 @@ shadow-lg">
       {/* Certificate Modal */}
       {selectedCertificate && (
         <div
-          className="fixed inset-0 bg-black/70 z-40 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm overflow-y-auto"
-          onClick={() => setSelectedCertificate(null)}
+          className="fixed inset-0 bg-black/70 z-40 flex flex-col items-center justify-center p-3 sm:p-4 backdrop-blur-sm overflow-y-auto"
+          onClick={() => {
+            setSelectedCertificate(null);
+            setZoom(1);
+          }}
+          onWheel={handleWheel}
         >
           <div
             className="relative my-4 w-full max-w-2xl sm:max-w-3xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={() => setSelectedCertificate(null)}
-              className="absolute -top-8 sm:-top-10 right-0 text-white hover:text-gray-300 transition-colors z-50"
-            >
-              <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-            <img
-              src={selectedCertificate.src}
-              alt={selectedCertificate.title}
-              className="w-full h-auto rounded-lg sm:rounded-2xl shadow-2xl"
-            />
+            <div className="flex justify-between items-center mb-3 gap-2">
+              <p className="text-white text-sm font-medium">
+                {zoom > 1 ? `${Math.round(zoom * 100)}%` : 'Scroll to zoom'}
+              </p>
+              <div className="flex gap-2">
+                {zoom > 1 && (
+                  <button
+                    onClick={() => resetZoom()}
+                    className="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded text-sm transition-colors"
+                  >
+                    Reset
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setSelectedCertificate(null);
+                    setZoom(1);
+                  }}
+                  className="text-white hover:text-gray-300 transition-colors"
+                >
+                  <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center justify-center overflow-auto max-h-[calc(90vh-60px)]">
+              <img
+                src={selectedCertificate.src}
+                alt={selectedCertificate.title}
+                className="rounded-lg sm:rounded-2xl shadow-2xl transition-transform"
+                style={{
+                  transform: `scale(${zoom})`,
+                  transformOrigin: 'center',
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
