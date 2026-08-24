@@ -18,14 +18,22 @@ export function mergeContent(base, override) {
   return override === undefined || override === null ? base : override;
 }
 
-const baked = mergeContent(defaults, generated);
+// Priority order: content injected by api/page.js at request time (always
+// current) > content baked in at build time (only reached if the page was
+// served statically) > the defaults compiled into the bundle.
+const injected =
+  typeof window !== 'undefined' && window.__CONTENT__ && typeof window.__CONTENT__ === 'object'
+    ? window.__CONTENT__
+    : null;
+
+const initial = mergeContent(defaults, injected || generated);
 
 export function useContent() {
-  // Starts from the baked content, then picks up anything saved since the last
-  // build. The rebuild triggered on save usually lands first, making this a no-op.
-  const [content, setContent] = useState(baked);
+  const [content, setContent] = useState(initial);
 
   useEffect(() => {
+    // Injected content is already current; there is nothing newer to fetch.
+    if (injected) return undefined;
     let cancelled = false;
     fetch('/api/content')
       .then((r) => (r.ok ? r.json() : null))

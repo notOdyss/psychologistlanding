@@ -357,7 +357,7 @@ export default function Admin() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'сақтау қатесі');
       setDirty(false);
-      setStatus(data.rebuilding ? 'Сақталды ✓ · Сайт жаңартылуда…' : 'Сақталды ✓');
+      setStatus('Сақталды ✓');
       setTimeout(() => setStatus(''), 6000);
     } catch (err) {
       setStatus('');
