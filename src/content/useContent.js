@@ -28,12 +28,17 @@ const injected =
 
 const initial = mergeContent(defaults, injected || generated);
 
+// An empty object means injection ran but the store gave it nothing — either
+// genuinely empty, or unreadable. Treat that as "not injected" so the fetch
+// below still gets a chance, rather than silently settling for the defaults.
+const injectedSomething = Boolean(injected && Object.keys(injected).length > 0);
+
 export function useContent() {
   const [content, setContent] = useState(initial);
 
   useEffect(() => {
     // Injected content is already current; there is nothing newer to fetch.
-    if (injected) return undefined;
+    if (injectedSomething) return undefined;
     let cancelled = false;
     fetch('/api/content')
       .then((r) => (r.ok ? r.json() : null))
