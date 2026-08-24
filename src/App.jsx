@@ -1,19 +1,13 @@
 import { useState } from 'react';
+import { useContent } from './content/useContent.js';
 
 function App() {
+  const content = useContent();
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [selectedDiploma, setSelectedDiploma] = useState(null);
   const [zoom, setZoom] = useState(1);
 
-  const diplomas = [
-    { id: 1, src: '/cert1-1.png', title: 'Диплом 1' },
-    { id: 2, src: '/cert2-1.png', title: 'Диплом 2' },
-  ];
-
-  const certificates = [
-    { id: 1, src: '/cert1-1.png', title: 'Сертификат 1' },
-    { id: 2, src: '/cert2-1.png', title: 'Сертификат 2' },
-  ];
+  const { hero, profile, audience, howItWorks, projects, program, diplomas, certificates } = content;
 
   const handleWheel = (e) => {
     if (e.ctrlKey || e.metaKey) {
@@ -25,6 +19,14 @@ function App() {
 
   const resetZoom = () => setZoom(1);
 
+  const closeModal = () => {
+    setSelectedDiploma(null);
+    setSelectedCertificate(null);
+    setZoom(1);
+  };
+
+  const modalItem = selectedDiploma || selectedCertificate;
+
   return (
     <div className="min-h-screen bg-[#fafafa]">
 
@@ -32,10 +34,10 @@ function App() {
       <section className="pt-6 pb-2 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
-            2026-ға тыныш жүрекпен,<br/>анық оймен, сенімді қадаммен
+            {hero.titleLine1}<br/>{hero.titleLine2}
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-[#0F766E] font-semibold mb-4">
-            4 апталық премиум психотерапиялық бағдарлама
+            {hero.subtitle}
           </p>
         </div>
       </section>
@@ -43,13 +45,13 @@ function App() {
       {/* Psychologist Profile */}
       <section className="pt-2 pb-8 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
-          <p className="text-sm sm:text-base text-[#0F766E] font-semibold uppercase tracking-wider mb-6 text-center">Кім мен?</p>
+          <p className="text-sm sm:text-base text-[#0F766E] font-semibold uppercase tracking-wider mb-6 text-center">{profile.eyebrow}</p>
 
           <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8 border border-gray-100">
             <div className="grid md:grid-cols-[500px_1fr] gap-4 sm:gap-8 items-start">
               {/* Left - Photo */}
               <div className="rounded-2xl overflow-hidden border-2 border-[#0F766E]/20 shadow-md">
-                <img src="/images/psychologist2.jpg" alt="Зарина Ельбаева" className="w-full h-full object-cover aspect-[3/4]" />
+                <img src={profile.photo} alt={profile.name} className="w-full h-full object-cover aspect-[3/4]" />
               </div>
 
               {/* Right - Info */}
@@ -57,45 +59,32 @@ function App() {
                 {/* Name and credentials */}
                 <div className="mb-6">
                   <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-                    Зарина Ельбаева
+                    {profile.name}
                   </h2>
                   <p className="text-sm sm:text-base md:text-xl text-gray-600 leading-relaxed">
-                    PhD доктор • Қауымдастырылған профессор • Практик психолог
+                    {profile.credentials}
                   </p>
                 </div>
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
-                  <div className="bg-gradient-to-br from-[#0F766E] to-[#14B8A6] rounded-lg sm:rounded-xl shadow-md p-2 sm:p-4 text-center hover:shadow-lg transition-shadow">
-                    <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">15+</div>
-                    <p className="text-white/90 font-medium text-xs sm:text-sm">жыл тәжірибе</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-[#0F766E] to-[#14B8A6] rounded-lg sm:rounded-xl shadow-md p-2 sm:p-4 text-center hover:shadow-lg transition-shadow">
-                    <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">5000+</div>
-                    <p className="text-white/90 font-medium text-xs sm:text-sm">сағат консультация</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-[#0F766E] to-[#14B8A6] rounded-lg sm:rounded-xl shadow-md p-2 sm:p-4 text-center hover:shadow-lg transition-shadow">
-                    <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">20+</div>
-                    <p className="text-white/90 font-medium text-xs sm:text-sm">біліктілік курсы</p>
-                  </div>
+                  {profile.stats.map((stat, index) => (
+                    <div key={index} className="bg-gradient-to-br from-[#0F766E] to-[#14B8A6] rounded-lg sm:rounded-xl shadow-md p-2 sm:p-4 text-center hover:shadow-lg transition-shadow">
+                      <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">{stat.value}</div>
+                      <p className="text-white/90 font-medium text-xs sm:text-sm">{stat.label}</p>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Education */}
                 <div>
-                  <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Білім:</h3>
+                  <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">{profile.educationTitle}</h3>
                   <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                    <div className="bg-[#CCFBF1] rounded-lg sm:rounded-xl p-3 sm:p-5 border-2 border-[#0F766E]/30 text-center shadow-sm hover:shadow-md transition-shadow">
-                      <p className="text-sm sm:text-base md:text-lg font-bold text-gray-900">Қазақстан</p>
-                    </div>
-                    <div className="bg-[#CCFBF1] rounded-lg sm:rounded-xl p-3 sm:p-5 border-2 border-[#0F766E]/30 text-center shadow-sm hover:shadow-md transition-shadow">
-                      <p className="text-sm sm:text-base md:text-lg font-bold text-gray-900">Германия</p>
-                    </div>
-                    <div className="bg-[#CCFBF1] rounded-lg sm:rounded-xl p-3 sm:p-5 border-2 border-[#0F766E]/30 text-center shadow-sm hover:shadow-md transition-shadow">
-                      <p className="text-sm sm:text-base md:text-lg font-bold text-gray-900">Оңтүстік Корея</p>
-                    </div>
-                    <div className="bg-[#CCFBF1] rounded-lg sm:rounded-xl p-3 sm:p-5 border-2 border-[#0F766E]/30 text-center shadow-sm hover:shadow-md transition-shadow">
-                      <p className="text-sm sm:text-base md:text-lg font-bold text-gray-900">Украина</p>
-                    </div>
+                    {profile.education.map((country, index) => (
+                      <div key={index} className="bg-[#CCFBF1] rounded-lg sm:rounded-xl p-3 sm:p-5 border-2 border-[#0F766E]/30 text-center shadow-sm hover:shadow-md transition-shadow">
+                        <p className="text-sm sm:text-base md:text-lg font-bold text-gray-900">{country}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -109,20 +98,18 @@ function App() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Бұл бағдарлама кімге арналған?
+              {audience.title}
             </h2>
             <p className="text-xl text-gray-700 mb-6">
-              Негізгі бір сұранысын терең деңгейде шешкісі келетін адамдарға:
+              {audience.subtitle}
             </p>
           </div>
 
           <div className="bg-white rounded-3xl shadow-lg p-8 md:p-10">
             <div className="space-y-4">
-              <p className="text-xl text-gray-700">• Жолдасымен қарым-қатынасты реттеу</p>
-              <p className="text-xl text-gray-700">• Өзін-өзі бағалау мен ішкі сенімді қалпына келтіру</p>
-              <p className="text-xl text-gray-700">• Уайым, қорқыныш, ішкі қысымнан шығу</p>
-              <p className="text-xl text-gray-700">• Өзінің нағыз тілегін, бағытын табу</p>
-              <p className="text-xl text-gray-700">• Бір жағдайдан ұзақ шыға алмай жүргендерге</p>
+              {audience.items.map((item, index) => (
+                <p key={index} className="text-xl text-gray-700">• {item}</p>
+              ))}
             </div>
           </div>
         </div>
@@ -133,61 +120,55 @@ function App() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-              Бағдарлама қалай жұмыс істейді?
+              {howItWorks.title}
             </h2>
           </div>
 
           {/* Sessions 1-3 */}
           <div className="mb-10">
             <div className="mb-6">
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">1–3 сессия</h3>
-              <p className="text-xl text-gray-600">Негізгі сұранысты толық шешу</p>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">{howItWorks.partOne.title}</h3>
+              <p className="text-xl text-gray-600">{howItWorks.partOne.subtitle}</p>
             </div>
 
-            <p className="text-lg text-gray-700 mb-6">Бір сұраныс 3 деңгейде қарастырылады:</p>
+            <p className="text-lg text-gray-700 mb-6">{howItWorks.partOne.intro}</p>
 
             <div className="space-y-3 mb-6">
-              <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-[#0F766E]">
-                <h4 className="text-xl font-bold text-gray-900 mb-1">1. Ойлау <span className="text-base font-normal text-gray-500">(ментальды деңгей)</span></h4>
-                <p className="text-gray-700 text-base">Шектеулер мен қорқыныштар трансформацияланады.</p>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-[#0F766E]">
-                <h4 className="text-xl font-bold text-gray-900 mb-1">2. Күй мен дене <span className="text-base font-normal text-gray-500">(эмоционалды-физиологиялық деңгей)</span></h4>
-                <p className="text-gray-700 text-base">Ішкі тыныштық пен тұрақтылық қалыптасады.</p>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-[#0F766E]">
-                <h4 className="text-xl font-bold text-gray-900 mb-1">3. Жаңа мінез-құлық <span className="text-base font-normal text-gray-500">(поведенческий деңгей)</span></h4>
-                <p className="text-gray-700 text-base">Егер тағы қысқарту керек болса</p>
-              </div>
+              {howItWorks.partOne.levels.map((level, index) => (
+                <div key={index} className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-[#0F766E]">
+                  <h4 className="text-xl font-bold text-gray-900 mb-1">
+                    {level.title}
+                    {level.note && <span className="text-base font-normal text-gray-500"> {level.note}</span>}
+                  </h4>
+                  <p className="text-gray-700 text-base">{level.text}</p>
+                </div>
+              ))}
             </div>
 
             <div className="bg-[#0F766E] text-white rounded-2xl p-5 text-center">
-              <p className="text-xl font-semibold">Нәтиже: анықтық, ішкі ресурс</p>
+              <p className="text-xl font-semibold">{howItWorks.partOne.result}</p>
             </div>
           </div>
 
           {/* Session 4 */}
           <div>
             <div className="mb-6">
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">4 сессия</h3>
-              <p className="text-xl text-gray-600">2026 жылға жеке мақсат қою</p>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">{howItWorks.partTwo.title}</h3>
+              <p className="text-xl text-gray-600">{howItWorks.partTwo.subtitle}</p>
             </div>
 
-            <p className="text-lg text-gray-700 mb-6">Сіздің нағыз қалауыңызға сай:</p>
+            <p className="text-lg text-gray-700 mb-6">{howItWorks.partTwo.intro}</p>
 
             <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
               <div className="space-y-3">
-                <p className="text-lg text-gray-900">✓ Жылдық мақсат</p>
-                <p className="text-lg text-gray-900">✓ Нақты қадамдар жоспары</p>
-                <p className="text-lg text-gray-900">✓ Ішкі тірек</p>
-                <p className="text-lg text-gray-900">✓ Мінез-құлық стратегиясы</p>
+                {howItWorks.partTwo.items.map((item, index) => (
+                  <p key={index} className="text-lg text-gray-900">✓ {item}</p>
+                ))}
               </div>
             </div>
 
             <div className="bg-[#0F766E] text-white rounded-2xl p-5 text-center">
-              <p className="text-xl font-semibold">2026 жылға жеке карта</p>
+              <p className="text-xl font-semibold">{howItWorks.partTwo.result}</p>
             </div>
           </div>
         </div>
@@ -199,64 +180,30 @@ function App() {
 
           {/* Projects Section */}
           <div className="mb-6">
-            <h3 className="text-3xl font-bold text-gray-900 mb-6 text-center">5 ірі жобалық жұмыс</h3>
+            <h3 className="text-3xl font-bold text-gray-900 mb-6 text-center">{projects.title}</h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-              <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg hover:border-[#0F766E] transition-all">
-                <div className="h-12 flex items-center justify-start mb-3">
-                  <img src="/images/atameken.png" alt="Атамекен" className="h-10 w-auto object-contain" />
+              {projects.items.map((project, index) => (
+                <div key={index} className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg hover:border-[#0F766E] transition-all">
+                  {project.logo ? (
+                    <div className="h-12 flex items-center justify-start mb-3">
+                      <img src={project.logo} alt={project.name} className="h-10 w-auto object-contain" />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
+                      <span className="text-xl">{project.emoji}</span>
+                    </div>
+                  )}
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">{project.name}</h4>
+                  <p className="text-gray-600 text-base">{project.description}</p>
                 </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">«Атамекен»</h4>
-                <p className="text-gray-600 text-base">Кәсіпкерлермен психологиялық жұмыс</p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg hover:border-[#0F766E] transition-all">
-                <div className="h-12 flex items-center justify-start mb-3">
-                  <img src="/images/halyk.png" alt="Халық Банк" className="h-10 w-auto object-contain" />
-                </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">«Халық Банк»</h4>
-                <p className="text-gray-600 text-base">Командамен психологиялық жұмыс</p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg hover:border-[#0F766E] transition-all">
-                <div className="h-12 flex items-center justify-start mb-3">
-                  <img src="/images/ruhani.jpg" alt="Рухани жаңғыру" className="h-10 w-auto object-contain" />
-                </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">«Рухани жаңғыру»</h4>
-                <p className="text-gray-600 text-base">Қазақстанның әр қаласындағы психологтармен жұмыс</p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg hover:border-[#0F766E] transition-all">
-                <div className="h-12 flex items-center justify-start mb-3">
-                  <img src="/images/airastana.jpg" alt="Эйр Астана" className="h-10 w-auto object-contain" />
-                </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">Эйр Астана</h4>
-                <p className="text-gray-600 text-base">Командамен психологиялық жұмыс</p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg hover:border-[#0F766E] transition-all">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
-                  <span className="text-xl">🚀</span>
-                </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">«Прорыв» жобасы</h4>
-                <p className="text-gray-600 text-base">Кәсіпкерлермен психологиялық жұмыс</p>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg hover:border-[#0F766E] transition-all">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
-                  <span className="text-xl">🔬</span>
-                </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">Ғылыми жұмыстар</h4>
-                <p className="text-gray-600 text-base">2 ғылыми-зерттеу жобасы</p>
-              </div>
-
+              ))}
             </div>
           </div>
 
           {/* Bottom Message */}
           <div className="bg-gradient-to-r from-[#CCFBF1] to-[#CCFBF1] rounded-2xl p-6 text-center mt-8">
             <p className="text-xl text-gray-800 font-medium">
-              Мен сіздің сұранысыңызды түсініп, нақты өзгеріске жеткізетін жүйелік тәсілмен жұмыс істеймін.
+              {projects.bottomMessage}
             </p>
           </div>
 
@@ -269,50 +216,43 @@ function App() {
           <div className="bg-white rounded-3xl shadow-xl p-8 border-2 border-[#0F766E]">
 
             <div className="text-center mb-8">
-              <p className="text-base text-[#0F766E] font-semibold uppercase tracking-wider mb-2">Премиум бағдарлама</p>
+              <p className="text-base text-[#0F766E] font-semibold uppercase tracking-wider mb-2">{program.eyebrow}</p>
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                Бағдарлама туралы
+                {program.title}
               </h2>
               <p className="text-xl text-gray-600">
-                Негізгі бір сұранысын терең деңгейде шешкісі келетін адамдарға
+                {program.subtitle}
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-4 mb-6">
               <div className="bg-[#fafafa] rounded-2xl p-5 text-center border border-gray-200">
-                <p className="text-sm text-gray-500 font-medium mb-1">Формат</p>
-                <p className="text-xl font-bold text-gray-900">онлайн / офлайн</p>
+                <p className="text-sm text-gray-500 font-medium mb-1">{program.formatLabel}</p>
+                <p className="text-xl font-bold text-gray-900">{program.formatValue}</p>
               </div>
               <div className="bg-[#fafafa] rounded-2xl p-5 text-center border border-gray-200">
-                <p className="text-sm text-gray-500 font-medium mb-1">Старт</p>
-                <p className="text-xl font-bold text-gray-900">1 желтоқсан</p>
+                <p className="text-sm text-gray-500 font-medium mb-1">{program.startLabel}</p>
+                <p className="text-xl font-bold text-gray-900">{program.startValue}</p>
               </div>
-              <div className="bg-gradient-to-br from-[#0F766E] to-[#14B8A6]
-rounded-2xl
-h-[120px]
-flex flex-col justify-center
-text-center
-border-2 border-[#0F766E]
-shadow-lg">
-  <p className="text-sm text-white/80 font-medium leading-none">
-    Баға
-  </p>
-  <p className="text-4xl font-bold text-white leading-none">
-    300 000 ₸
-  </p>
-</div>
-
+              <div className="bg-gradient-to-br from-[#0F766E] to-[#14B8A6] rounded-2xl h-[120px] flex flex-col justify-center text-center border-2 border-[#0F766E] shadow-lg">
+                <p className="text-sm text-white/80 font-medium leading-none">
+                  {program.priceLabel}
+                </p>
+                <p className="text-4xl font-bold text-white leading-none">
+                  {program.priceValue}
+                </p>
+              </div>
             </div>
 
             <div className="text-center">
               <a
-                href="https://wa.me/77079562033"
+                href={`https://wa.me/${program.whatsappNumber}`}
                 className="inline-block bg-[#0F766E] hover:bg-[#115E59] text-white font-bold px-10 py-7 rounded-full text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 mb-4"
               >
-                +7 707 956 20 33
+                {program.phoneDisplay}
               </a>
               <p className="text-lg text-gray-600 font-medium">
-                Жаңа жылға дейін өзіңізді жаңа деңгейге шығарыңыз
+                {program.footnote}
               </p>
             </div>
 
@@ -325,14 +265,14 @@ shadow-lg">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Дипломдар
+              {diplomas.title}
             </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {diplomas.map((diploma) => (
+            {diplomas.items.map((diploma, index) => (
               <button
-                key={diploma.id}
+                key={index}
                 onClick={() => setSelectedDiploma(diploma)}
                 className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl hover:border-[#0F766E] transition-all cursor-pointer group"
               >
@@ -352,8 +292,8 @@ shadow-lg">
             <div className="bg-[#CCFBF1] rounded-2xl shadow-lg border-2 border-[#0F766E] flex items-center justify-center p-6 text-center hover:shadow-xl transition-shadow">
               <div>
                 <p className="text-3xl mb-3">📜</p>
-                <p className="text-lg font-bold text-gray-900">Көбінесе сертификаттар</p>
-                <p className="text-gray-700 text-sm mt-2">Батасы өндіктілігінің куәлігі</p>
+                <p className="text-lg font-bold text-gray-900">{diplomas.extraCardTitle}</p>
+                <p className="text-gray-700 text-sm mt-2">{diplomas.extraCardSubtitle}</p>
               </div>
             </div>
           </div>
@@ -365,14 +305,14 @@ shadow-lg">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Сертификаттар
+              {certificates.title}
             </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {certificates.map((cert) => (
+            {certificates.items.map((cert, index) => (
               <button
-                key={cert.id}
+                key={index}
                 onClick={() => setSelectedCertificate(cert)}
                 className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl hover:border-[#0F766E] transition-all cursor-pointer group"
               >
@@ -392,21 +332,18 @@ shadow-lg">
             <div className="bg-[#CCFBF1] rounded-2xl shadow-lg border-2 border-[#0F766E] flex items-center justify-center p-6 text-center hover:shadow-xl transition-shadow">
               <div>
                 <p className="text-3xl mb-3">📜</p>
-                <p className="text-lg font-bold text-gray-900">Тағы сертификаттар</p>
+                <p className="text-lg font-bold text-gray-900">{certificates.extraCardTitle}</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Diploma Modal */}
-      {selectedDiploma && (
+      {/* Image Modal (diplomas and certificates share one) */}
+      {modalItem && (
         <div
           className="fixed inset-0 bg-black/70 z-40 flex flex-col items-center justify-center p-3 sm:p-4 backdrop-blur-sm overflow-y-auto"
-          onClick={() => {
-            setSelectedDiploma(null);
-            setZoom(1);
-          }}
+          onClick={closeModal}
           onWheel={handleWheel}
         >
           <div
@@ -426,13 +363,7 @@ shadow-lg">
                     Reset
                   </button>
                 )}
-                <button
-                  onClick={() => {
-                    setSelectedDiploma(null);
-                    setZoom(1);
-                  }}
-                  className="text-white hover:text-gray-300 transition-colors"
-                >
+                <button onClick={closeModal} className="text-white hover:text-gray-300 transition-colors">
                   <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                   </svg>
@@ -441,63 +372,8 @@ shadow-lg">
             </div>
             <div className="flex items-center justify-center overflow-auto max-h-[calc(90vh-60px)]">
               <img
-                src={selectedDiploma.src}
-                alt={selectedDiploma.title}
-                className="rounded-lg sm:rounded-2xl shadow-2xl transition-transform"
-                style={{
-                  transform: `scale(${zoom})`,
-                  transformOrigin: 'center',
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Certificate Modal */}
-      {selectedCertificate && (
-        <div
-          className="fixed inset-0 bg-black/70 z-40 flex flex-col items-center justify-center p-3 sm:p-4 backdrop-blur-sm overflow-y-auto"
-          onClick={() => {
-            setSelectedCertificate(null);
-            setZoom(1);
-          }}
-          onWheel={handleWheel}
-        >
-          <div
-            className="relative my-4 w-full max-w-2xl sm:max-w-3xl flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center mb-3 gap-2">
-              <p className="text-white text-sm font-medium">
-                {zoom > 1 ? `${Math.round(zoom * 100)}%` : 'Scroll to zoom'}
-              </p>
-              <div className="flex gap-2">
-                {zoom > 1 && (
-                  <button
-                    onClick={() => resetZoom()}
-                    className="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded text-sm transition-colors"
-                  >
-                    Reset
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    setSelectedCertificate(null);
-                    setZoom(1);
-                  }}
-                  className="text-white hover:text-gray-300 transition-colors"
-                >
-                  <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div className="flex items-center justify-center overflow-auto max-h-[calc(90vh-60px)]">
-              <img
-                src={selectedCertificate.src}
-                alt={selectedCertificate.title}
+                src={modalItem.src}
+                alt={modalItem.title}
                 className="rounded-lg sm:rounded-2xl shadow-2xl transition-transform"
                 style={{
                   transform: `scale(${zoom})`,

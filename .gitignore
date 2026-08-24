@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# CMS local dev storage (not deployed)
+.data
+public/uploads
+.env
+.env*.local
