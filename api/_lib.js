@@ -138,6 +138,10 @@ const blobAuth = BLOB_TOKEN ? { token: BLOB_TOKEN } : {};
 
 export const storageStatus = {
   blobConfigured: usingBlob,
+  // Which credential the storage calls actually use. A deployment created
+  // before the token was added still reports "oidc", which is the only way to
+  // tell that a redeploy has not yet picked up new environment variables.
+  authMode: BLOB_TOKEN ? 'token' : 'oidc',
   passwordConfigured: Boolean(process.env.ADMIN_PASSWORD),
   secretConfigured: Boolean(process.env.ADMIN_SECRET),
   onVercel,
