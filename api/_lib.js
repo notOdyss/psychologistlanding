@@ -152,6 +152,20 @@ function assertWritableStore() {
   }
 }
 
+// Read-only connectivity check for /api/health. A successful list() proves the
+// function's credentials work, which is the part that cannot be verified from a
+// developer machine: OIDC is refused outside the deployed environment.
+export async function probeStore() {
+  if (!usingBlob) return { reachable: false, reason: 'no store attached' };
+  try {
+    const { list } = await import('@vercel/blob');
+    const { blobs } = await list({ limit: 1, ...blobAuth });
+    return { reachable: true, blobCount: blobs.length };
+  } catch (err) {
+    return { reachable: false, reason: err.message };
+  }
+}
+
 export async function loadContent() {
   if (!usingBlob) {
     try {
