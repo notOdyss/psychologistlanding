@@ -23,7 +23,15 @@ export default async function handler(req, res) {
     if (!body || typeof body !== 'object' || Array.isArray(body)) {
       return send(res, 400, { error: 'content must be an object' });
     }
-    await saveContent(body);
+    try {
+      await saveContent(body);
+    } catch (err) {
+      // Without this the throw becomes Vercel's plain-text "A server error has
+      // occurred", which the panel cannot parse as JSON and reports as a
+      // confusing syntax error instead of the real cause.
+      console.error('saveContent failed:', err);
+      return send(res, 500, { error: `storage: ${err.message}` });
+    }
     return send(res, 200, { ok: true });
   }
 

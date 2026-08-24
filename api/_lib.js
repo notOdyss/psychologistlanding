@@ -144,12 +144,13 @@ export async function saveContent(content) {
     return;
   }
   const { put } = await import('@vercel/blob');
+  // No cacheControlMaxAge here: Vercel Blob rejects values below 60 seconds, and
+  // loadContent() already defeats the CDN cache with a timestamped URL.
   await put(CONTENT_KEY, json, {
     access: 'public',
     contentType: 'application/json',
     addRandomSuffix: false,
     allowOverwrite: true,
-    cacheControlMaxAge: 0,
     token: BLOB_TOKEN,
   });
 }

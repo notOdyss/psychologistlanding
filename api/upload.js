@@ -23,6 +23,11 @@ export default async function handler(req, res) {
   }
   if (!buffer.length) return send(res, 400, { error: 'empty file' });
 
-  const url = await saveUpload(filename, buffer, contentType);
-  return send(res, 200, { url });
+  try {
+    const url = await saveUpload(filename, buffer, contentType);
+    return send(res, 200, { url });
+  } catch (err) {
+    console.error('saveUpload failed:', err);
+    return send(res, 500, { error: `storage: ${err.message}` });
+  }
 }

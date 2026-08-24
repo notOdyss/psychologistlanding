@@ -5,6 +5,19 @@ import schema from './schema.js';
 
 const TOKEN_KEY = 'cms_token';
 
+// Reads a response that is normally JSON but may be plain text when a
+// serverless function crashes. Always resolves to an object with an `error`
+// field on failure, so callers never see a JSON parse error.
+async function readBody(res) {
+  const text = await res.text();
+  if (!text) return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { error: text.slice(0, 200) };
+  }
+}
+
 /* --------------------------------------------------- immutable path access */
 
 function getAt(obj, path) {
@@ -65,8 +78,8 @@ function ImageField({ label, hint, value, onChange, token, onError }) {
         },
         body: file,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'жүктеу қатесі');
+      const data = await readBody(res);
+      if (!res.ok) throw new Error(data.error || `қате ${res.status}`);
       onChange(data.url);
     } catch (err) {
       onError('Суретті жүктеу мүмкін болмады: ' + err.message);
@@ -262,9 +275,13 @@ function Login({ onSuccess }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
       });
-      const data = await res.json();
+      const data = await readBody(res);
       if (!res.ok) {
-        throw new Error(data.error === 'wrong password' ? 'Құпия сөз дұрыс емес' : data.error);
+        throw new Error(
+          data.error === 'wrong password'
+            ? 'Құпия сөз дұрыс емес'
+            : data.error || `қате ${res.status}`,
+        );
       }
       localStorage.setItem(TOKEN_KEY, data.token);
       onSuccess(data.token);
@@ -354,8 +371,10 @@ export default function Admin() {
         logout();
         return;
       }
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'сақтау қатесі');
+      // A crashed function replies with plain text, not JSON. Parsing that
+      // blindly would surface a syntax error instead of the actual failure.
+      const data = await readBody(res);
+      if (!res.ok) throw new Error(data.error || `қате ${res.status}`);
       setDirty(false);
       setStatus('Сақталды ✓');
       setTimeout(() => setStatus(''), 6000);
