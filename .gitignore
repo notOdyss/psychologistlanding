@@ -28,3 +28,6 @@ dist-ssr
 public/uploads
 .env
 .env*.local
+
+# Generated at build time from Blob storage
+src/content/generated.json

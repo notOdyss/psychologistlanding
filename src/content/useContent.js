@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import defaults from './defaults.js';
+// Written by scripts/fetch-content.mjs before each build: the saved content as
+// of build time, so the first paint is already correct (no flash of defaults).
+import generated from './generated.json';
 
 // Deep-merges the stored content over the defaults, so a content file saved
 // before a new field existed still renders that new field.
@@ -15,8 +18,12 @@ export function mergeContent(base, override) {
   return override === undefined || override === null ? base : override;
 }
 
+const baked = mergeContent(defaults, generated);
+
 export function useContent() {
-  const [content, setContent] = useState(defaults);
+  // Starts from the baked content, then picks up anything saved since the last
+  // build. The rebuild triggered on save usually lands first, making this a no-op.
+  const [content, setContent] = useState(baked);
 
   useEffect(() => {
     let cancelled = false;
@@ -28,7 +35,7 @@ export function useContent() {
         }
       })
       .catch(() => {
-        /* offline or API missing: keep the built-in defaults */
+        /* offline or API missing: keep the baked content */
       });
     return () => {
       cancelled = true;

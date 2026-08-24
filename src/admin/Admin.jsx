@@ -354,10 +354,11 @@ export default function Admin() {
         logout();
         return;
       }
-      if (!res.ok) throw new Error((await res.json()).error || 'сақтау қатесі');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'сақтау қатесі');
       setDirty(false);
-      setStatus('Сақталды ✓');
-      setTimeout(() => setStatus(''), 3000);
+      setStatus(data.rebuilding ? 'Сақталды ✓ · Сайт жаңартылуда…' : 'Сақталды ✓');
+      setTimeout(() => setStatus(''), 6000);
     } catch (err) {
       setStatus('');
       setError('Сақталмады: ' + err.message);
