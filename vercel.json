@@ -1,13 +1,12 @@
 {
-  "rewrites": [
-    {
-      "source": "/((?!api/|index\\.html|assets/).*)",
-      "destination": "/api/page"
-    }
-  ],
   "functions": {
     "api/page.js": {
       "includeFiles": "dist/index.html"
     }
-  }
+  },
+  "routes": [
+    { "src": "/", "dest": "/api/page" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/api/page" }
+  ]
 }

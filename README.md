@@ -53,3 +53,14 @@ To change the password later, edit `ADMIN_PASSWORD` and redeploy. Changing
 Create a `.env` file with `ADMIN_PASSWORD` and `ADMIN_SECRET`, then `npm run dev`.
 Content saves to `.data/content.json` and uploads to `public/uploads` — both are
 gitignored and never deployed.
+
+### Why `routes` and not `rewrites` in vercel.json
+
+Vercel resolves static files *before* applying `rewrites`, so a rewrite on `/`
+never fires — `dist/index.html` matches first and is served directly. The
+legacy `routes` array gives explicit ordering, letting `/` reach `api/page.js`
+ahead of the filesystem lookup while everything else still resolves normally:
+
+1. `/` → `api/page.js` (injects the saved content)
+2. `handle: filesystem` → assets, images, `/index.html`, the other functions
+3. anything left (e.g. `/admin`) → `api/page.js`
