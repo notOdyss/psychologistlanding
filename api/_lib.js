@@ -119,6 +119,28 @@ const LOCAL_UPLOADS = path.join(process.cwd(), 'public', 'uploads');
 
 export const usingBlob = Boolean(BLOB_TOKEN);
 
+// True when running on Vercel, where the filesystem is read-only. The local
+// disk fallback below is a development convenience and can never work here, so
+// we refuse it explicitly rather than failing later with a confusing ENOENT
+// about /var/task.
+const onVercel = Boolean(process.env.VERCEL);
+
+export const storageStatus = {
+  blobConfigured: usingBlob,
+  passwordConfigured: Boolean(process.env.ADMIN_PASSWORD),
+  secretConfigured: Boolean(process.env.ADMIN_SECRET),
+  onVercel,
+};
+
+function assertWritableStore() {
+  if (!usingBlob && onVercel) {
+    throw new Error(
+      'BLOB_READ_WRITE_TOKEN is missing. Connect the Blob store to this project ' +
+        'in Vercel (Storage tab, then Connect Project) and redeploy.',
+    );
+  }
+}
+
 export async function loadContent() {
   if (!usingBlob) {
     try {
@@ -137,6 +159,7 @@ export async function loadContent() {
 }
 
 export async function saveContent(content) {
+  assertWritableStore();
   const json = JSON.stringify(content, null, 2);
   if (!usingBlob) {
     await fs.mkdir(path.dirname(LOCAL_CONTENT), { recursive: true });
@@ -156,6 +179,7 @@ export async function saveContent(content) {
 }
 
 export async function saveUpload(filename, buffer, contentType) {
+  assertWritableStore();
   const safe = filename.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80) || 'file';
   const key = `${Date.now()}-${safe}`;
   if (!usingBlob) {
