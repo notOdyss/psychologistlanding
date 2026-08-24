@@ -31,3 +31,6 @@ public/uploads
 
 # Generated at build time from Blob storage
 src/content/generated.json
+
+.vercel
+.env*

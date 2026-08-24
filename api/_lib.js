@@ -109,21 +109,32 @@ export function checkPassword(candidate) {
 }
 
 /* ---------------------------------------------------------------- storage */
-/* Uses Vercel Blob in production. Without a blob token (i.e. `npm run dev`)
-   it falls back to the local filesystem so the panel is testable offline.   */
+/* Uses Vercel Blob in production. Off-platform (i.e. `npm run dev`) it falls
+   back to the local filesystem so the panel is testable offline.            */
 
+// This project's Blob store authenticates over OIDC, so there is no
+// BLOB_READ_WRITE_TOKEN and there never will be: on Vercel the SDK resolves
+// credentials itself, and BLOB_STORE_ID is what signals the store is attached.
+// The token is still honoured if one is ever set, e.g. for a store that uses it.
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
+const BLOB_STORE_ID = process.env.BLOB_STORE_ID;
 const CONTENT_KEY = 'cms/content.json';
 const LOCAL_CONTENT = path.join(process.cwd(), '.data', 'content.json');
 const LOCAL_UPLOADS = path.join(process.cwd(), 'public', 'uploads');
-
-export const usingBlob = Boolean(BLOB_TOKEN);
 
 // True when running on Vercel, where the filesystem is read-only. The local
 // disk fallback below is a development convenience and can never work here, so
 // we refuse it explicitly rather than failing later with a confusing ENOENT
 // about /var/task.
 const onVercel = Boolean(process.env.VERCEL);
+
+// OIDC only works in the deployed environment — locally it fails with
+// "OIDC is enabled for this project, but not for the development environment" —
+// so a store id alone counts only when we are actually running on Vercel.
+export const usingBlob = Boolean(BLOB_TOKEN) || (onVercel && Boolean(BLOB_STORE_ID));
+
+// Passing token: undefined lets the SDK resolve OIDC credentials itself.
+const blobAuth = BLOB_TOKEN ? { token: BLOB_TOKEN } : {};
 
 export const storageStatus = {
   blobConfigured: usingBlob,
@@ -135,8 +146,8 @@ export const storageStatus = {
 function assertWritableStore() {
   if (!usingBlob && onVercel) {
     throw new Error(
-      'BLOB_READ_WRITE_TOKEN is missing. Connect the Blob store to this project ' +
-        'in Vercel (Storage tab, then Connect Project) and redeploy.',
+      'No Blob store is attached: neither BLOB_READ_WRITE_TOKEN nor BLOB_STORE_ID ' +
+        'is set. Connect the store to this project in Vercel and redeploy.',
     );
   }
 }
@@ -150,7 +161,7 @@ export async function loadContent() {
     }
   }
   const { list } = await import('@vercel/blob');
-  const { blobs } = await list({ prefix: CONTENT_KEY, limit: 1, token: BLOB_TOKEN });
+  const { blobs } = await list({ prefix: CONTENT_KEY, limit: 1, ...blobAuth });
   if (!blobs.length) return null;
   // Cache-buster: the blob CDN would otherwise serve a stale copy after a save.
   const res = await fetch(`${blobs[0].url}?ts=${Date.now()}`, { cache: 'no-store' });
@@ -174,7 +185,7 @@ export async function saveContent(content) {
     contentType: 'application/json',
     addRandomSuffix: false,
     allowOverwrite: true,
-    token: BLOB_TOKEN,
+    ...blobAuth,
   });
 }
 
@@ -192,7 +203,7 @@ export async function saveUpload(filename, buffer, contentType) {
     access: 'public',
     contentType,
     addRandomSuffix: false,
-    token: BLOB_TOKEN,
+    ...blobAuth,
   });
   return blob.url;
 }
